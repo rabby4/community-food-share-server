@@ -1,9 +1,16 @@
 const express = require('express')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express()
+const cors = require('cors')
 require('dotenv').config()
 const port = 5000
 
+
+app.use(express.json())
+app.use(cors({
+  origin:'http://localhost:5173',
+  credentials: true
+}))
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v07t2jx.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -19,7 +26,23 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
+
+    const foodCollections = client.db('foodShare').collection('foods')
+
+    // post a food on database
+    app.post('/foods', async(req, res)=>{
+      const newFood = req.body;
+      const result = await foodCollections.insertOne(newFood)
+      res.send(result)
+    })
+
+    app.get('/foods', async(req, res)=>{
+      const query = foodCollections.find()
+      const result = await query.toArray()
+      res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -33,9 +56,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('Community food sharing server is running!')
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Food sharing app listening on port ${port}`)
 })
