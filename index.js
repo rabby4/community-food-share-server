@@ -38,6 +38,15 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/foods', async(req, res)=>{
+      let query = {}
+      if(req.query?.email){
+        query = {email: req.query.email}
+      }
+      const result = await foodCollections.find(query).toArray()
+      res.send(result)
+    })
+
     // get all foods
     app.get('/foods', async(req, res)=>{
       const query = foodCollections.find()
@@ -52,6 +61,9 @@ async function run() {
       const result = await foodCollections.findOne(query)
       res.send(result)
     })
+
+    // get foods for manage
+   
 
     // post for request
     app.post('/request', async(req, res)=>{
