@@ -82,7 +82,13 @@ async function run() {
       res.send(result)
     })
 
-   
+   //delete managed food
+   app.delete('/foods/:id', async(req, res)=>{
+    const id = req.params.id
+    const query = {_id: new ObjectId(id)}
+    const result = await foodCollections.deleteOne(query)
+    res.send(result)
+  })
 
     // post for request
     app.post('/request', async(req, res)=>{
@@ -100,12 +106,14 @@ async function run() {
       res.send(result)
     })
 
+    // delete requested food
     app.delete('/request/:id', async(req, res)=>{
       const id = req.params.id
       const query = {_id: new ObjectId(id)}
       const result = await requestFoodCollections.deleteOne(query)
       res.send(result)
     })
+    
     
 
     // Send a ping to confirm a successful connection
