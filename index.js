@@ -106,6 +106,20 @@ async function run() {
       res.send(result)
     })
 
+    app.patch('/request/:id', async(req, res)=>{
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+      const updatedFood = req.body
+      console.log(updatedFood)
+      const updateDoc = {
+        $set: {
+          status: updatedFood.status
+        },
+      };
+      const result = await requestFoodCollections.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
     // delete requested food
     app.delete('/request/:id', async(req, res)=>{
       const id = req.params.id
