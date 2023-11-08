@@ -62,7 +62,26 @@ async function run() {
       res.send(result)
     })
 
-    // get foods for manage
+    // update food
+    app.put('/foods/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const options = { upsert: true };
+      const updateFood = req.body;
+      const food = {
+        $set: {
+          foodTitle: updateFood.foodTitle,
+          foodImg: updateFood.foodImg,
+          quantity: updateFood.quantity,
+          expDate: updateFood.expDate,
+          location: updateFood.location,
+          notes: updateFood.notes
+        }
+      }
+      const result = await foodCollections.updateOne(filter, food, options)
+      res.send(result)
+    })
+
    
 
     // post for request
@@ -72,7 +91,6 @@ async function run() {
       res.send(result)
     })
 
-    // food request by donor info
     app.get('/request', async(req, res)=>{
       let query = {}
       if(req.query?.email){
@@ -82,16 +100,13 @@ async function run() {
       res.send(result)
     })
 
-    // food request by requester info
-    // app.get('/request', async(req, res)=>{
-    //   let query = {}
-    //   if(req.query?.email){
-    //     query = {email: req.query.email}
-    //   }
-    //   const result = await requestFoodCollections.find(query).toArray()
-    //   res.send(result)
-    // })
-
+    app.delete('/request/:id', async(req, res)=>{
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const result = await requestFoodCollections.deleteOne(query)
+      res.send(result)
+    })
+    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
