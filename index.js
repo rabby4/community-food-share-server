@@ -72,6 +72,26 @@ async function run() {
       res.send(result)
     })
 
+    // food request by donor info
+    app.get('/request', async(req, res)=>{
+      let query = {}
+      if(req.query?.email){
+        query = {donorEmail: req.query.email}
+      }
+      const result = await requestFoodCollections.find(query).toArray()
+      res.send(result)
+    })
+
+    // food request by requester info
+    // app.get('/request', async(req, res)=>{
+    //   let query = {}
+    //   if(req.query?.email){
+    //     query = {email: req.query.email}
+    //   }
+    //   const result = await requestFoodCollections.find(query).toArray()
+    //   res.send(result)
+    // })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
