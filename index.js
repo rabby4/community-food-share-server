@@ -2,6 +2,8 @@ const express = require('express')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const cors = require('cors')
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 require('dotenv').config()
 const port = 5000
 
@@ -30,6 +32,27 @@ async function run() {
 
     const foodCollections = client.db('foodShare').collection('foods')
     const requestFoodCollections = client.db('foodShare').collection('request')
+
+    // auth related api
+    app.post('/jwt', async(req, res)=>{
+      const user = req.body;
+      console.log('user for token', user)
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {expiresIn: '5h'})
+      res.cookie('token', token,{
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+      }).send({success: true})
+    })
+
+    app.post('/logout', async(req, res)=>{
+      const user = req.body;
+      console.log('logged out ', user)
+      res.clearCookie('token',{
+        secure: process.env.ACCESS_TOKEN === "production" ? true: false,
+        sameSite: process.env.ACCESS_TOKEN === "production" ? "none" : "strict",})
+        .send({success: true})
+    })
 
     // post a food on database
     app.post('/foods', async(req, res)=>{
