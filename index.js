@@ -13,6 +13,25 @@ app.use(cors({
   origin:'http://localhost:5173',
   credentials: true
 }))
+app.use(cookieParser())
+const logger = (req, res, next) =>{
+  console.log(req.method, req.url)
+  next()
+}
+const verifyToken = (req, res, next)=>{
+  const token = req?.cookies?.token
+  console.log('cookies from the middleware', token)
+  if(!token){
+    return res.status(401).send({message: 'unauthorized access'})
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded)=>{
+    if(err){
+      return res.status(401).send({message: 'unauthorized access'})
+    }
+    req.user = decoded;
+    next()
+  })
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v07t2jx.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -61,7 +80,11 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/foods', async(req, res)=>{
+    app.get('/foods', logger, verifyToken, async(req, res)=>{
+      console.log('token owner', req.user)
+      // if(req.user.email !== req.query.email){
+      //   return res.status(403).send({message: 'forbidden access'})
+      // }
       let query = {}
       if(req.query?.email){
         query = {email: req.query.email}
@@ -71,14 +94,14 @@ async function run() {
     })
 
     // get all foods
-    app.get('/foods', async(req, res)=>{
+    app.get('/foods', logger, verifyToken, async(req, res)=>{
       const query = foodCollections.find()
       const result = await query.toArray()
       res.send(result)
     })
 
     // get single food
-    app.get('/foods/:id', async(req, res)=>{
+    app.get('/foods/:id', logger, verifyToken, async(req, res)=>{
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
       const result = await foodCollections.findOne(query)
@@ -120,7 +143,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/request', async(req, res)=>{
+    app.get('/request', logger, verifyToken, async(req, res)=>{
       let query = {}
       if(req.query?.email){
         query = {donorEmail: req.query.email}
