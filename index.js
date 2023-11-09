@@ -10,7 +10,11 @@ const port = 5000
 
 app.use(express.json())
 app.use(cors({
-  origin:'http://localhost:5173',
+  origin:[
+    'http://localhost:5173',
+    'https://food-sharing-bc5b4.web.app',
+    'https://food-sharing-bc5b4.firebaseapp.com'
+],
   credentials: true
 }))
 app.use(cookieParser())
@@ -47,7 +51,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const foodCollections = client.db('foodShare').collection('foods')
     const requestFoodCollections = client.db('foodShare').collection('request')
