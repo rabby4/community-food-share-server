@@ -68,14 +68,21 @@ async function run() {
       }).send({success: true})
     })
 
-    app.post('/logout', async(req, res)=>{
+    // app.post('/logout', async(req, res)=>{
+    //   const user = req.body;
+    //   console.log('logged out ', user)
+    //   res.clearCookie('token',{
+    //     secure: process.env.ACCESS_TOKEN === "production" ? true: false,
+    //     sameSite: process.env.ACCESS_TOKEN === "production" ? "none" : "strict",})
+    //     .send({success: true})
+    // })
+    app.post('/logout', async (req, res) => {
       const user = req.body;
-      console.log('logged out ', user)
-      res.clearCookie('token',{
-        secure: process.env.ACCESS_TOKEN === "production" ? true: false,
-        sameSite: process.env.ACCESS_TOKEN === "production" ? "none" : "strict",})
-        .send({success: true})
-    })
+      console.log('logging out', user);
+      res
+          .clearCookie('token', { maxAge: 0, sameSite: 'none', secure: true })
+          .send({ success: true })
+   })
 
     // post a food on database
     app.post('/foods', async(req, res)=>{
@@ -84,7 +91,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/foods', logger, verifyToken, async(req, res)=>{
+    app.get('/foods', async(req, res)=>{
       console.log('token owner', req.user)
       // if(req.user.email !== req.query.email){
       //   return res.status(403).send({message: 'forbidden access'})
@@ -98,14 +105,14 @@ async function run() {
     })
 
     // get all foods
-    app.get('/foods', logger, verifyToken, async(req, res)=>{
+    app.get('/foods', async(req, res)=>{
       const query = foodCollections.find()
       const result = await query.toArray()
       res.send(result)
     })
 
     // get single food
-    app.get('/foods/:id', logger, verifyToken, async(req, res)=>{
+    app.get('/foods/:id', async(req, res)=>{
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
       const result = await foodCollections.findOne(query)
